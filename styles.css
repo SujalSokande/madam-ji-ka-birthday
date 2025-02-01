@@ -72,6 +72,7 @@ body, html {
     box-shadow: 
         0 20px 50px var(--soft-glow),
         0 10px 30px rgba(255, 105, 180, 0.2);
+    -webkit-backdrop-filter: blur(15px);
     backdrop-filter: blur(15px);
     z-index: 10;
     transform: rotateX(5deg);

@@ -1,297 +1,371 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elegant Countdown Timer
-    const countdownElement = document.getElementById('countdown');
+    // Cache DOM elements for better performance
+    const elements = {
+        countdown: document.getElementById('countdown'),
+        magicalParticles: document.getElementById('magical-particles'),
+        emojiMagicButton: document.getElementById('emoji-magic-sprinkle'),
+        musicButton: document.getElementById('birthday-music'),
+        confettiButton: document.getElementById('confetti-shower'),
+        photoCarousel: document.querySelector('.photo-carousel'),
+        buttons: document.querySelectorAll('.girly-button')
+    };
+
+    // Configuration constants
+    const CONFIG = {
+        FIREWORKS_PER_MINUTE: 10,
+        PARTICLES_PER_FIREWORK: 30,
+        FIREWORK_COLORS: [
+            '#FF69B4', '#FFB6C1', '#FF1493', '#FF00FF', 
+            '#FF69B4', '#DDA0DD', '#EE82EE', '#DA70D6', 
+            '#BA55D3', '#9370DB'
+        ],
+        EMOJIS: ['💖', '🎀', '✨', '🦄', '🌈', '🦋', '💕'],
+        PINK_COLORS: ['#FF64A5', '#FFB6D1', '#FFCCE5', '#FF69B4', '#FF1493']
+    };
+
+    // Birthday date configuration
     const birthdayDate = new Date('2025-02-01T00:00:00Z');
     let birthdayMessageDisplayed = false;
-    
-    // Fireworks configuration
-    const FIREWORKS_PER_MINUTE = 10;
-    const PARTICLES_PER_FIREWORK = 30;
-    const FIREWORK_COLORS = [
-        '#FF69B4', // Hot Pink
-        '#FFB6C1', // Light Pink
-        '#FF1493', // Deep Pink
-        '#FF00FF', // Magenta
-        '#FF69B4', // Hot Pink
-        '#DDA0DD', // Plum
-        '#EE82EE', // Violet
-        '#DA70D6', // Orchid
-        '#BA55D3', // Medium Orchid
-        '#9370DB'  // Medium Purple
-    ];
 
-    function updateCountdown() {
+    // Audio state management
+    let audio = null;
+    let isPlaying = true;
+    let emojiInterval;
+    let isSprinkleActive = false;
+
+    // Initialize error handling for images
+    function initializeImageErrorHandling() {
+        const images = document.querySelectorAll('.photo-carousel img');
+        images.forEach(img => {
+            img.addEventListener('error', () => {
+                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f0f0f0"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" fill="%23999" font-size="14"%3EImage not found%3C/text%3E%3C/svg%3E';
+                img.alt = 'Image failed to load';
+            });
+        });
+    }
+
+    // Optimized countdown timer with RAF
+    let lastCountdownUpdate = 0;
+    function updateCountdown(timestamp) {
+        // Throttle updates to once per second
+        if (timestamp - lastCountdownUpdate < 1000) {
+            requestAnimationFrame(updateCountdown);
+            return;
+        }
+
+        lastCountdownUpdate = timestamp;
         const now = new Date();
         const difference = birthdayDate - now;
 
         if (difference <= 0) {
             if (!birthdayMessageDisplayed) {
-                countdownElement.innerHTML = `
-                    <div class="celebration-message">
-                        <div class="message-line">Happy Birthday Yash!</div>
-                        <div class="message-subtitle">To my darling, my love, my everything 💖</div>
-                        <div class="message-subtitle">You are my sunshine, my teddy bear, and the one who fills my heart with endless joy. 🧸</div>
-                        <div class="message-subtitle">May your day be filled with joy, laughter, and endless blessings!</div>
-                        <div class="birthday-emoji">🎂</div>
-                    </div>
-                `;
+                displayBirthdayMessage();
                 birthdayMessageDisplayed = true;
                 startFireworks();
             }
         } else {
-            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-            countdownElement.innerHTML = `
-                <div class="countdown-part">
-                    <span class="number">${days.toString().padStart(2, '0')}</span>
-                    <span class="label">Days</span>
-                </div>
-                <div class="countdown-part">
-                    <span class="number">${hours.toString().padStart(2, '0')}</span>
-                    <span class="label">Hours</span>
-                </div>
-                <div class="countdown-part">
-                    <span class="number">${minutes.toString().padStart(2, '0')}</span>
-                    <span class="label">Minutes</span>
-                </div>
-                <div class="countdown-part">
-                    <span class="number">${seconds.toString().padStart(2, '0')}</span>
-                    <span class="label">Seconds</span>
-                </div>
-            `;
+            updateCountdownDisplay(difference);
         }
+
+        requestAnimationFrame(updateCountdown);
+    }
+
+    function updateCountdownDisplay(difference) {
+        const timeUnits = {
+            days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        };
+
+        elements.countdown.innerHTML = Object.entries(timeUnits)
+            .map(([unit, value]) => `
+                <div class="countdown-part">
+                    <span class="number">${value.toString().padStart(2, '0')}</span>
+                    <span class="label">${unit}</span>
+                </div>
+            `).join('');
+    }
+
+    function displayBirthdayMessage() {
+        elements.countdown.innerHTML = `
+            <div class="celebration-message">
+                <div class="message-line">Happy Birthday Yash!</div>
+                <div class="message-subtitle">To my darling, my love, my everything 💖</div>
+                <div class="message-subtitle">You are my sunshine, my teddy bear, and the one who fills my heart with endless joy. 🧸</div>
+                <div class="message-subtitle">May your day be filled with joy, laughter, and endless blessings!</div>
+                <div class="birthday-emoji">🎂</div>
+            </div>
+        `;
+    }
+
+    // Optimized fireworks with object pooling
+    const fireworkPool = [];
+    const particlePool = [];
+
+    function getFirework() {
+        return fireworkPool.pop() || document.createElement('div');
+    }
+
+    function getParticle() {
+        return particlePool.pop() || document.createElement('div');
+    }
+
+    function recycleElement(element, pool) {
+        if (element.parentNode) {
+            element.parentNode.removeChild(element);
+        }
+        pool.push(element);
     }
 
     function startFireworks() {
-        const interval = (60 * 1000) / FIREWORKS_PER_MINUTE;
+        const interval = (60 * 1000) / CONFIG.FIREWORKS_PER_MINUTE;
         
-        // Launch initial fireworks
-        for (let i = 0; i < FIREWORKS_PER_MINUTE; i++) {
-            setTimeout(() => createFirework(), i * (interval / FIREWORKS_PER_MINUTE));
-        }
-        
-        // Set interval for continuous fireworks
-        setInterval(() => {
-            for (let i = 0; i < FIREWORKS_PER_MINUTE; i++) {
-                setTimeout(() => createFirework(), i * (interval / FIREWORKS_PER_MINUTE));
+        function launchFireworks() {
+            for (let i = 0; i < CONFIG.FIREWORKS_PER_MINUTE; i++) {
+                setTimeout(() => createFirework(), i * (interval / CONFIG.FIREWORKS_PER_MINUTE));
             }
-        }, interval);
+        }
+
+        launchFireworks();
+        setInterval(launchFireworks, interval);
     }
 
     function createFirework() {
         const container = document.querySelector('.celebration-container');
         const containerRect = container.getBoundingClientRect();
-        const magicalParticles = document.getElementById('magical-particles');
+        const firework = getFirework();
         
-        const firework = document.createElement('div');
-        firework.classList.add('firework');
-        
-        // Random position within container bounds
+        firework.className = 'firework';
         const randomX = containerRect.left + (Math.random() * containerRect.width);
         const randomBurstHeight = containerRect.top + (Math.random() * (containerRect.height * 0.7));
         
         firework.style.left = `${randomX}px`;
-        
-        // Random color
-        const randomColor = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
-        firework.style.setProperty('--firework-color', randomColor);
+        firework.style.setProperty('--firework-color', CONFIG.FIREWORK_COLORS[Math.floor(Math.random() * CONFIG.FIREWORK_COLORS.length)]);
         firework.style.setProperty('--burst-height', `${randomBurstHeight}px`);
         
-        magicalParticles.appendChild(firework);
+        elements.magicalParticles.appendChild(firework);
 
-        // Create explosion effect when firework reaches burst height
-        const animationDuration = 1000; // 1 second to reach burst height
         setTimeout(() => {
-            // Create particle explosion
-            for (let i = 0; i < PARTICLES_PER_FIREWORK; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('firework-particle');
-                
-                // Random color variations for particles
-                const particleColor = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
-                particle.style.setProperty('--particle-color', particleColor);
-                
-                // Set particle position to burst point
-                particle.style.left = `${randomX}px`;
-                particle.style.top = `${randomBurstHeight}px`;
-                
-                // Random spread parameters
-                const angle = (Math.PI * 2 * i) / PARTICLES_PER_FIREWORK;
-                const velocity = 2 + Math.random() * 2;
-                particle.style.setProperty('--angle', angle);
-                particle.style.setProperty('--velocity', velocity);
-                
-                magicalParticles.appendChild(particle);
-
-                // Remove particle after animation
-                setTimeout(() => {
-                    particle.remove();
-                }, 2000);
-            }
-
-            // Remove original firework
-            firework.remove();
-        }, animationDuration);
+            createFireworkParticles(randomX, randomBurstHeight);
+            recycleElement(firework, fireworkPool);
+        }, 1000);
     }
 
-    // Initialize countdown
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    function createFireworkParticles(x, y) {
+        for (let i = 0; i < CONFIG.PARTICLES_PER_FIREWORK; i++) {
+            const particle = getParticle();
+            particle.className = 'firework-particle';
+            
+            particle.style.setProperty('--particle-color', CONFIG.FIREWORK_COLORS[Math.floor(Math.random() * CONFIG.FIREWORK_COLORS.length)]);
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            
+            const angle = (Math.PI * 2 * i) / CONFIG.PARTICLES_PER_FIREWORK;
+            const velocity = 2 + Math.random() * 2;
+            particle.style.setProperty('--angle', angle);
+            particle.style.setProperty('--velocity', velocity);
+            
+            elements.magicalParticles.appendChild(particle);
 
-    // Photo Carousel
-    const photoCarousel = document.querySelector('.photo-carousel');
-    let currentIndex = 0;
-
-    function rotatePhotos() {
-        currentIndex = (currentIndex + 1) % 5;
-        photoCarousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            setTimeout(() => recycleElement(particle, particlePool), 2000);
+        }
     }
 
-    setInterval(rotatePhotos, 3000);
-
-    // Magical Emoji Sprinkle
-    const magicalParticles = document.getElementById('magical-particles');
-    const emojiMagicButton = document.getElementById('emoji-magic-sprinkle');
-    const emojis = ['💖', '🎀', '✨', '🦄', '🌈', '🦋', '💕'];
-    let emojiInterval;
-    let isSprinkleActive = false;
-
+    // Optimized emoji sprinkle
     function createEmojiSprinkle() {
         const emoji = document.createElement('div');
         emoji.classList.add('magic-emoji');
-        
-        // Random horizontal position
         emoji.style.left = `${Math.random() * 100}%`;
-        
-        // Random emoji selection
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        
-        // Falling animation with adjusted smoother timing
+        emoji.textContent = CONFIG.EMOJIS[Math.floor(Math.random() * CONFIG.EMOJIS.length)];
         emoji.style.animation = `particle-soft-fall ${Math.random() * 4 + 4}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
         
-        magicalParticles.appendChild(emoji);
-    
-        // Remove emoji after animation ends
-        emoji.addEventListener('animationend', () => {
-            emoji.remove();
-        });
+        elements.magicalParticles.appendChild(emoji);
+        emoji.addEventListener('animationend', () => emoji.remove());
     }
 
     function toggleEmojiSprinkle() {
         if (!isSprinkleActive) {
-            // Start sprinkle
             emojiInterval = setInterval(createEmojiSprinkle, 300);
             isSprinkleActive = true;
-            emojiMagicButton.classList.add('active');
+            elements.emojiMagicButton.classList.add('active');
         } else {
-            // Stop sprinkle
             clearInterval(emojiInterval);
             isSprinkleActive = false;
-            emojiMagicButton.classList.remove('active');
+            elements.emojiMagicButton.classList.remove('active');
         }
     }
 
-    emojiMagicButton.addEventListener('click', toggleEmojiSprinkle);
+    // Modified audio initialization
+    function initializeAudio() {
+        if (!audio) {
+            audio = new Audio('audio.mp3');
+            audio.loop = true;
 
-    // Birthday Music Player
-    const musicButton = document.getElementById('birthday-music');
-    const audio = new Audio('audio.mp3'); // Replace with your birthday song
-    let isPlaying = false;
+            audio.addEventListener('ended', () => {
+                isPlaying = false;
+                elements.musicButton.classList.remove('music-playing', 'active');
+            });
 
-    function startMusic() {
-        audio.play();
-        musicButton.classList.add('music-playing');  // Add the 'music-playing' class
-        musicButton.classList.add('active');  // You can add an 'active' class for the button's active state
-        isPlaying = true;
+            audio.addEventListener('error', (e) => {
+                console.error('Audio error:', e);
+                elements.musicButton.style.display = 'none';
+            });
+
+            // Add loaded metadata listener to start playing as soon as possible
+            audio.addEventListener('loadedmetadata', () => {
+                playAudioWithRetry();
+            });
+
+            // Preload audio
+            audio.preload = 'auto';
+            audio.load();
+        }
     }
 
-    musicButton.addEventListener('click', () => {
+    // Function to handle auto-play with retry mechanism
+    function playAudioWithRetry(retryCount = 0) {
+        const maxRetries = 3;
+        
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                elements.musicButton.classList.add('music-playing', 'active');
+            }).catch(error => {
+                console.error('Playback failed:', error);
+                
+                // Retry logic for autoplay
+                if (retryCount < maxRetries) {
+                    setTimeout(() => {
+                        playAudioWithRetry(retryCount + 1);
+                    }, 1000); // Wait 1 second before retrying
+                } else {
+                    // If all retries fail, set up interaction-based playback
+                    const startAudio = () => {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            elements.musicButton.classList.add('music-playing', 'active');
+                            // Remove the interaction listeners once audio starts
+                            document.removeEventListener('click', startAudio);
+                            document.removeEventListener('touchstart', startAudio);
+                        });
+                    };
+
+                    // Add interaction listeners
+                    document.addEventListener('click', startAudio);
+                    document.addEventListener('touchstart', startAudio);
+                }
+            });
+        }
+    }
+
+    // Modified toggle function
+    function toggleMusic() {
+        if (!audio) {
+            initializeAudio();
+            return;
+        }
+
         if (!isPlaying) {
-            audio.play();
-            musicButton.classList.add('music-playing');  // Add the 'music-playing' class
-            musicButton.classList.add('active');  // You can add an 'active' class for the button's active state
-            isPlaying = true;
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        isPlaying = true;
+                        elements.musicButton.classList.add('music-playing', 'active');
+                    })
+                    .catch(error => {
+                        console.error('Playback failed:', error);
+                        isPlaying = false;
+                        elements.musicButton.classList.remove('music-playing', 'active');
+                    });
+            }
         } else {
             audio.pause();
-            musicButton.classList.remove('music-playing');  // Remove the 'music-playing' class
-            musicButton.classList.remove('active');  // Remove the 'active' class
             isPlaying = false;
+            elements.musicButton.classList.remove('music-playing', 'active');
         }
-    });
+    }
 
-    // Automatically start music on page load
-    startMusic();
-
-    // Function to create and animate multiple heart emojis when any button is clicked
+    // Optimized heart spray animation
     function sprayHearts(event) {
-        const heartContainer = document.getElementById('magical-particles');
-        const numberOfHearts = 10;  // Number of hearts to generate on each click
+        const rect = event.target.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
         
-        for (let i = 0; i < numberOfHearts; i++) {
+        for (let i = 0; i < 10; i++) {
             const heart = document.createElement('div');
             heart.classList.add('magic-emoji');
-            heart.textContent = '💖';  // Heart emoji
-
-            // Position the heart near the center of the button clicked
-            const rect = event.target.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+            heart.textContent = '💖';
 
             heart.style.left = `${centerX}px`;
             heart.style.top = `${centerY}px`;
 
-            // Apply random direction and movement with custom properties
-            const randomX = Math.random() * 100 - 50; // Random x-direction
-            const randomY = Math.random() * 100 - 50; // Random y-direction
+            const randomX = Math.random() * 100 - 50;
+            const randomY = Math.random() * 100 - 50;
             heart.style.setProperty('--x', `${randomX}px`);
             heart.style.setProperty('--y', `${randomY}px`);
 
-            // Add the heart to the magical particles container
-            heartContainer.appendChild(heart);
-
-            // Apply the animation that spreads the hearts in random directions
-            heart.style.animation = `heart-spray 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
-
-            // Remove the heart after the animation ends
-            heart.addEventListener('animationend', () => {
-                heart.remove();
-            });
+            elements.magicalParticles.appendChild(heart);
+            heart.addEventListener('animationend', () => heart.remove());
         }
     }
 
-    // Add event listener to all buttons
-    const buttons = document.querySelectorAll('.girly-button');
-    buttons.forEach(button => {
-        button.addEventListener('click', sprayHearts);
-    });
-
-    // Confetti Shower
-    const confettiButton = document.getElementById('confetti-shower');
-
-    confettiButton.addEventListener('click', () => {
+    // Optimized confetti shower
+    function createConfetti() {
+        const fragment = document.createDocumentFragment();
         for (let i = 0; i < 100; i++) {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti-piece');
             confetti.style.left = `${Math.random() * 100}%`;
-            confetti.style.backgroundColor = getRandomPinkColor();
+            confetti.style.backgroundColor = CONFIG.PINK_COLORS[Math.floor(Math.random() * CONFIG.PINK_COLORS.length)];
             confetti.style.animationDuration = `${Math.random() * 2 + 3}s`;
             
-            magicalParticles.appendChild(confetti);
-    
-            confetti.addEventListener('animationend', () => {
-                confetti.remove();
-            });
+            confetti.addEventListener('animationend', () => confetti.remove());
+            fragment.appendChild(confetti);
         }
-    });
-
-    function getRandomPinkColor() {
-        const pinkColors = [
-            '#FF64A5', '#FFB6D1', '#FFCCE5', 
-            '#FF69B4', '#FF1493'
-        ];
-        return pinkColors[Math.floor(Math.random() * pinkColors.length)];
+        elements.magicalParticles.appendChild(fragment);
     }
+
+    // Photo carousel optimization
+    let currentIndex = 0;
+    function rotatePhotos() {
+        currentIndex = (currentIndex + 1) % 5;
+        elements.photoCarousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
+
+    // Initialize all event listeners
+    function initializeEventListeners() {
+        elements.emojiMagicButton.addEventListener('click', toggleEmojiSprinkle);
+        elements.musicButton.addEventListener('click', toggleMusic);
+        elements.confettiButton.addEventListener('click', createConfetti);
+        elements.buttons.forEach(button => {
+            button.addEventListener('click', sprayHearts);
+            // Add touch support for mobile
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                sprayHearts(e);
+            });
+        });
+    }
+
+    // Initialize everything
+    function initialize() {
+        initializeImageErrorHandling();
+        initializeEventListeners();
+        initializeAudio(); // This will now trigger automatic playback
+        requestAnimationFrame(updateCountdown);
+        setInterval(rotatePhotos, 3000);
+
+        // Add smooth scrolling for Safari
+        if (navigator.userAgent.indexOf('Safari') !== -1) {
+            document.documentElement.style.scrollBehavior = 'smooth';
+        }
+    }
+
+    // Start the app
+    initialize();
 });
