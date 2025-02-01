@@ -1,3 +1,4 @@
+/* Base styles */
 :root {
     --primary-pink: #FF64A5;       /* Lighter Hot Pink */
     --secondary-pink: #FFB6D1;     /* Soft Light Pink */
@@ -19,13 +20,13 @@ body, html {
     font-family: 'Quicksand', sans-serif;
     background-color: var(--background-pink);
     color: var(--text-color);
-    overflow: hidden;
+    scroll-behavior: smooth; /* Add smooth scrolling behavior */
 }
 
+/* Pink Galaxy */
 .pink-galaxy {
     position: relative;
-    width: 100%;
-    height: 100vh;
+    min-height: 100vh; /* Changed from height: 100vh to min-height */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,19 +35,22 @@ body, html {
         rgba(90, 45, 75, 0.9), 
         rgba(130, 60, 95, 0.95)
     );
-    z-index: 1;  /* Ensure the galaxy layer is above the particles */
+    z-index: 1;
+    padding: 2rem 0; /* Add padding to prevent content from touching edges */
 }
 
+/* Birthday Universe */
 .birthday-universe {
     position: relative;
     width: 100%;
-    height: 100%;
+    min-height: 100vh; /* Changed from height to min-height */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;  /* Ensure the center container stays above the particles */
+    z-index: 2;
 }
 
+/* Magical Particles */
 #magical-particles {
     position: fixed;
     top: 0;
@@ -55,9 +59,9 @@ body, html {
     height: 100%;
     pointer-events: none;
     z-index: 9999;
-    overflow: hidden;
 }
 
+/* Celebration Container */
 .celebration-container {
     position: relative;
     width: 90%;
@@ -72,13 +76,16 @@ body, html {
     z-index: 10;
     transform: rotateX(5deg);
     transition: all 0.3s ease;
+    margin: 2rem 0; /* Add margin to prevent touching edges */
 }
 
+/* Celebration Header */
 .celebration-header {
     text-align: center;
     margin-bottom: 30px;
 }
 
+/* Birthday Title */
 .birthday-title {
     font-family: 'Pacifico', cursive;
     font-size: 3.5rem;
@@ -87,6 +94,7 @@ body, html {
     text-align: center;
 }
 
+/* Celebration Subtitle */
 .celebration-subtitle {
     text-align: center;
     color: var(--secondary-pink);
@@ -94,14 +102,7 @@ body, html {
     margin-bottom: 20px;
 }
 
-.interactive-zone {
-    margin-bottom: 30px;
-}
-
-.magical-countdown {
-    margin-bottom: 30px;
-}
-
+/* Elegant Countdown */
 .elegant-countdown {
     display: flex;
     justify-content: center;
@@ -133,6 +134,7 @@ body, html {
     letter-spacing: 1px;
 }
 
+/* Magical Controls */
 .magical-controls {
     display: flex;
     justify-content: center;
@@ -140,6 +142,7 @@ body, html {
     margin: 30px 0;
 }
 
+/* Girly Button */
 .girly-button {
     background: linear-gradient(
         45deg, 
@@ -182,17 +185,14 @@ body, html {
     box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);  /* Optionally add a glowing effect */
 }
 
-.girly-button.active {
-    transform: scale(1.05); 
-}
-
-
+/* Memory Section */
 .memory-section h2 {
     text-align: center;
     color: var(--secondary-pink);
     margin-bottom: 20px;
 }
 
+/* Birthday Photo Container */
 .birthday-photo-container {
     position: relative;
     width: 100%;
@@ -227,6 +227,7 @@ body, html {
     text-align: center;
 }
 
+/* Magic Emoji */
 .magic-emoji {
     position: fixed;
     font-size: 2rem;
@@ -236,6 +237,7 @@ body, html {
     animation: particle-soft-fall 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 }
 
+/* Confetti Piece */
 .confetti-piece {
     position: absolute;
     width: 10px;
@@ -246,81 +248,18 @@ body, html {
     animation: confetti-fall 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-@keyframes particle-soft-fall {
-    0% { 
-        transform: translateY(0) rotate(0deg) scale(0.7);
-        opacity: 0.3;
-    }
-    50% { 
-        transform: translateY(50vh) rotate(180deg) scale(1);
-        opacity: 0.7;
-    }
-    100% { 
-        transform: translateY(100vh) rotate(360deg) scale(1.2);
-        opacity: 0;
-    }
-}
-
-@keyframes confetti-fall {
-    0% { 
-        transform: translateY(-10vh) rotate(0deg);
-        opacity: 1;
-    }
-    100% { 
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-    }
-}
-
-.confetti-piece {
-    animation: confetti-fall ease-out forwards;
-}
-
-@media screen and (max-width: 768px) {
-    .celebration-container {
-        width: 95%;
-        padding: 20px;
-    }
-
-    .birthday-title {
-        font-size: 2.5rem;
-    }
-
-    .elegant-countdown {
-        gap: 10px;
-    }
-
-    .elegant-countdown > div {
-        min-width: 70px;
-        padding: 10px;
-    }
-
-    .magical-controls {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .girly-button {
-        width: 100%;
-        max-width: 300px;
-        margin-bottom: 10px;
-    }
-}
-
-
-/* Define the heart spray animation */
+/* Heart Spray Animation */
 @keyframes heart-spray {
     0% {
-        transform: translate(0, 0) scale(0.7); /* Start at button's center with a smaller size */
+        transform: translate(0, 0) scale(0.7);
         opacity: 1;
     }
     100% {
-        transform: translate(var(--x), var(--y)) scale(1.5); /* Move in a random direction and increase in size */
+        transform: translate(var(--x), var(--y)) scale(1.5);
         opacity: 0;
     }
 }
 
-/* Style for heart emojis */
 .magic-emoji {
     position: absolute;
     font-size: 1.5rem;
@@ -330,8 +269,214 @@ body, html {
     will-change: transform, opacity;
 }
 
-/* Add randomness for movement in various directions */
 .magic-emoji {
     --x: calc(30px * (Math.random() * 2 - 1)); /* Random horizontal direction */
     --y: calc(30px * (Math.random() * 2 - 1)); /* Random vertical direction */
+}
+
+/* Message Line */
+.message-line {
+    font-family: 'Pacifico', cursive;
+    font-size: 3rem;
+    color: var(--accent-pink);
+    text-shadow: 0 0 20px rgba(255, 192, 203, 0.7);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: lineAppear 1s ease-out forwards 0.5s;
+}
+
+/* Message Subtitle */
+.message-subtitle {
+    font-size: 1.5rem;
+    color: var(--secondary-pink);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: lineAppear 1s ease-out forwards 1s;
+}
+
+/* Birthday Emoji */
+.birthday-emoji {
+    font-size: 4rem;
+    opacity: 0;
+    animation: bounce 2s ease-in-out infinite, lineAppear 1s ease-out forwards 1.5s;
+}
+
+/* Firework Animation */
+.firework {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: var(--firework-color);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    filter: blur(1px);
+    box-shadow: 0 0 10px var(--firework-color);
+    animation: shootToHeight 1s ease-out forwards;
+    bottom: 0;
+}
+
+/* Firework Particle */
+.firework-particle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--particle-color);
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(1px);
+    box-shadow: 0 0 5px var(--particle-color);
+    animation: particleExplosion 2s ease-out forwards;
+}
+
+/* Animations */
+@keyframes shootToHeight {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(calc(var(--burst-height) * -1)) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes particleExplosion {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: 
+            translate(
+                calc(cos(var(--angle)) * var(--velocity) * 100px),
+                calc(sin(var(--angle)) * var(--velocity) * 100px)
+            )
+            scale(0);
+        opacity: 0;
+    }
+}
+
+/* Celebration Message */
+.celebration-message {
+    position: relative;
+    z-index: 9999;
+    background: rgba(78, 11, 37, 0.8);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
+    text-align: center;
+    animation: messageAppear 1s ease-out forwards;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.message-line {
+    font-family: 'Pacifico', cursive;
+    font-size: 3rem;
+    color: var(--accent-pink);
+    text-shadow: 0 0 20px rgba(255, 192, 203, 0.7);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: lineAppear 1s ease-out forwards;
+}
+
+.message-subtitle {
+    font-size: 1.5rem;
+    color: var(--secondary-pink);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: lineAppear 1s ease-out forwards 0.5s;
+}
+
+.birthday-emoji {
+    font-size: 4rem;
+    opacity: 0;
+    animation: bounce 2s ease-in-out infinite, lineAppear 1s ease-out forwards 1s;
+}
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes lineAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Countdown */
+#countdown {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* Add minimum height to prevent layout shifts */
+}
+
+/* Update media queries for better mobile experience */
+@media screen and (max-width: 768px) {
+    .celebration-container {
+        width: 95%;
+        padding: 20px;
+        margin: 1rem 0;
+    }
+
+    .birthday-title {
+        font-size: 2rem; /* Reduced from 2.5rem for better mobile fit */
+    }
+
+    .elegant-countdown {
+        gap: 10px;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        justify-content: center;
+    }
+
+    .elegant-countdown > div {
+        min-width: 70px;
+        padding: 10px;
+        margin-bottom: 10px; /* Add space between wrapped items */
+    }
+
+    .magical-controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px; /* Add more space between buttons */
+    }
+
+    .girly-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Ensure content is scrollable on mobile devices */
+@media (max-width: 768px) {
+    .pink-galaxy,
+    .birthday-universe {
+        min-height: unset;
+        height: auto;
+    }
 }

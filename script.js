@@ -1,41 +1,143 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Elegant Countdown Timer
     const countdownElement = document.getElementById('countdown');
-    const birthdayDate = new Date('2025-02-01'); // Set your specific birthday date
+    const birthdayDate = new Date('2025-02-01T00:00:00Z');
+    let birthdayMessageDisplayed = false;
+    
+    // Fireworks configuration
+    const FIREWORKS_PER_MINUTE = 10;
+    const PARTICLES_PER_FIREWORK = 30;
+    const FIREWORK_COLORS = [
+        '#FF69B4', // Hot Pink
+        '#FFB6C1', // Light Pink
+        '#FF1493', // Deep Pink
+        '#FF00FF', // Magenta
+        '#FF69B4', // Hot Pink
+        '#DDA0DD', // Plum
+        '#EE82EE', // Violet
+        '#DA70D6', // Orchid
+        '#BA55D3', // Medium Orchid
+        '#9370DB'  // Medium Purple
+    ];
 
     function updateCountdown() {
         const now = new Date();
         const difference = birthdayDate - now;
 
-        if (difference < 0) {
-            countdownElement.innerHTML = '<h2>Birthday is here! 🎉</h2>';
-            return;
+        if (difference <= 0) {
+            if (!birthdayMessageDisplayed) {
+                countdownElement.innerHTML = `
+                    <div class="celebration-message">
+                        <div class="message-line">Happy Birthday Yash!</div>
+                        <div class="message-subtitle">To my darling, my love, my everything 💖</div>
+                        <div class="message-subtitle">You are my sunshine, my teddy bear, and the one who fills my heart with endless joy. 🧸</div>
+                        <div class="message-subtitle">May your day be filled with joy, laughter, and endless blessings!</div>
+                        <div class="birthday-emoji">🎂</div>
+                    </div>
+                `;
+                birthdayMessageDisplayed = true;
+                startFireworks();
+            }
+        } else {
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            countdownElement.innerHTML = `
+                <div class="countdown-part">
+                    <span class="number">${days.toString().padStart(2, '0')}</span>
+                    <span class="label">Days</span>
+                </div>
+                <div class="countdown-part">
+                    <span class="number">${hours.toString().padStart(2, '0')}</span>
+                    <span class="label">Hours</span>
+                </div>
+                <div class="countdown-part">
+                    <span class="number">${minutes.toString().padStart(2, '0')}</span>
+                    <span class="label">Minutes</span>
+                </div>
+                <div class="countdown-part">
+                    <span class="number">${seconds.toString().padStart(2, '0')}</span>
+                    <span class="label">Seconds</span>
+                </div>
+            `;
         }
-
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        countdownElement.innerHTML = `
-            <div class="countdown-part">
-                <span class="number">${days.toString().padStart(2, '0')}</span>
-                <span class="label">Days</span>
-            </div>
-            <div class="countdown-part">
-                <span class="number">${hours.toString().padStart(2, '0')}</span>
-                <span class="label">Hours</span>
-            </div>
-            <div class="countdown-part">
-                <span class="number">${minutes.toString().padStart(2, '0')}</span>
-                <span class="label">Minutes</span>
-            </div>
-            <div class="countdown-part">
-                <span class="number">${seconds.toString().padStart(2, '0')}</span>
-                <span class="label">Seconds</span>
-            </div>
-        `;
     }
+
+    function startFireworks() {
+        const interval = (60 * 1000) / FIREWORKS_PER_MINUTE;
+        
+        // Launch initial fireworks
+        for (let i = 0; i < FIREWORKS_PER_MINUTE; i++) {
+            setTimeout(() => createFirework(), i * (interval / FIREWORKS_PER_MINUTE));
+        }
+        
+        // Set interval for continuous fireworks
+        setInterval(() => {
+            for (let i = 0; i < FIREWORKS_PER_MINUTE; i++) {
+                setTimeout(() => createFirework(), i * (interval / FIREWORKS_PER_MINUTE));
+            }
+        }, interval);
+    }
+
+    function createFirework() {
+        const container = document.querySelector('.celebration-container');
+        const containerRect = container.getBoundingClientRect();
+        const magicalParticles = document.getElementById('magical-particles');
+        
+        const firework = document.createElement('div');
+        firework.classList.add('firework');
+        
+        // Random position within container bounds
+        const randomX = containerRect.left + (Math.random() * containerRect.width);
+        const randomBurstHeight = containerRect.top + (Math.random() * (containerRect.height * 0.7));
+        
+        firework.style.left = `${randomX}px`;
+        
+        // Random color
+        const randomColor = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+        firework.style.setProperty('--firework-color', randomColor);
+        firework.style.setProperty('--burst-height', `${randomBurstHeight}px`);
+        
+        magicalParticles.appendChild(firework);
+
+        // Create explosion effect when firework reaches burst height
+        const animationDuration = 1000; // 1 second to reach burst height
+        setTimeout(() => {
+            // Create particle explosion
+            for (let i = 0; i < PARTICLES_PER_FIREWORK; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('firework-particle');
+                
+                // Random color variations for particles
+                const particleColor = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+                particle.style.setProperty('--particle-color', particleColor);
+                
+                // Set particle position to burst point
+                particle.style.left = `${randomX}px`;
+                particle.style.top = `${randomBurstHeight}px`;
+                
+                // Random spread parameters
+                const angle = (Math.PI * 2 * i) / PARTICLES_PER_FIREWORK;
+                const velocity = 2 + Math.random() * 2;
+                particle.style.setProperty('--angle', angle);
+                particle.style.setProperty('--velocity', velocity);
+                
+                magicalParticles.appendChild(particle);
+
+                // Remove particle after animation
+                setTimeout(() => {
+                    particle.remove();
+                }, 2000);
+            }
+
+            // Remove original firework
+            firework.remove();
+        }, animationDuration);
+    }
+
+    // Initialize countdown
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
@@ -99,6 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const audio = new Audio('audio.mp3'); // Replace with your birthday song
     let isPlaying = false;
 
+    function startMusic() {
+        audio.play();
+        musicButton.classList.add('music-playing');  // Add the 'music-playing' class
+        musicButton.classList.add('active');  // You can add an 'active' class for the button's active state
+        isPlaying = true;
+    }
+
     musicButton.addEventListener('click', () => {
         if (!isPlaying) {
             audio.play();
@@ -112,6 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
             isPlaying = false;
         }
     });
+
+    // Automatically start music on page load
+    startMusic();
 
     // Function to create and animate multiple heart emojis when any button is clicked
     function sprayHearts(event) {
@@ -155,9 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
     buttons.forEach(button => {
         button.addEventListener('click', sprayHearts);
     });
-
-
-
 
     // Confetti Shower
     const confettiButton = document.getElementById('confetti-shower');
